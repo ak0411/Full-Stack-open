@@ -11,7 +11,16 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
   const [notification, setNotification] = useState(null)
-  const [error, setError] = useState(null)
+
+  const Notify = (isError, message) => {
+    setNotification({
+      isError: isError,
+      message: message
+    })
+    setTimeout(() => {
+      setNotification(null)
+    }, 5000)
+  }
 
   useEffect(() => {
     personService
@@ -20,7 +29,13 @@ const App = () => {
         setPersons(initialPersons)
       })
       .catch(error => {
-        console.error(error)
+        setNotification({
+          isError: true,
+          message: 'Cannot load phonebook'
+        })
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
       })
   }, [])
 
@@ -28,7 +43,7 @@ const App = () => {
     event.preventDefault()   
     const person = persons.find(p => p.name === newName)
     
-    if (person !== undefined) {    
+    if (person) {    
       if (window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)) {
         const updatedPerson = { ...person, number: newNumber }
         
@@ -37,18 +52,10 @@ const App = () => {
             setPersons(persons.map(p => p.name !== newName ? p : returnedPerson))
             setNewName('')
             setNewNumber('')
-            setError(false)
-            setNotification(`Updated ${returnedPerson.name}`)
-            setTimeout(() => {
-              setNotification(null)
-            }, 5000)
+            Notify(false, `Updated ${returnedPerson.name}`)
           })
           .catch(error => {
-            setError(true)
-            setNotification(`Information of ${updatedPerson.name} has already been removed from server`)
-            setTimeout(() => {
-              setNotification(null)
-            }, 5000)
+            Notify(true, `Information of ${updatedPerson.name} has already been removed from server`)
             setPersons(persons.filter(p => p.id !== updatedPerson.id))
           })
       }
@@ -63,14 +70,10 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
           setNewName('')
           setNewNumber('')
-          setError(false)
-          setNotification(`Added ${returnedPerson.name}`)
-          setTimeout(() => {
-            setNotification(null)
-          }, 5000)
+          Notify(false, `Added ${returnedPerson.name}`)
         })
         .catch(error => {
-          console.error(error)
+          Notify(true, `Failed to add ${newName}`)
         })
     }
   }
@@ -80,26 +83,21 @@ const App = () => {
   const handleDelete = (person) => {
     if (window.confirm(`Delete ${person.name}?`)) {
       personService
-      .remove(person.id)
-      .catch(error => {
-        console.error(error)
-        alert(
-          `the person '${person.name}' was already deleted from server`
-        )
+      .remove(person.id).then(data => {
+        setPersons(persons.filter(p => p.id !== person.id))
+        Notify(false, `Deleted ${person.name}`)
       })
-      setPersons(persons.filter(p => p.id !== person.id))
-      setError(false)
-      setNotification(`Deleted ${person.name}`)
-      setTimeout(() => {
-        setNotification(null)
-      }, 5000)
+      .catch(error => {
+        Notify(true, `Information of ${person.name} has already been removed from server`)
+        setPersons(persons.filter(p => p.id !== person.id))
+      })
     } 
   }
 
   return (
     <div>  
       <h2>Phonebook</h2>
-      <Notification message={notification} isError={error}/>
+      <Notification notification={notification}/>
       <Filter value={newFilter} onChange={(event) => setNewFilter(event.target.value)} />
       <h2>Add a new</h2>
       <PersonForm 
