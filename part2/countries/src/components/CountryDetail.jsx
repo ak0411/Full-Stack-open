@@ -1,4 +1,22 @@
-const CountryDetail = ({country, weather}) => {
+import { useState, useEffect } from 'react'
+import getWeather from '../services/weather'
+
+const CountryDetail = ({country}) => {
+    const [weather, setWeather] = useState(null)
+    useEffect(() => {
+        getWeather(country.capitalInfo.latlng[0], country.capitalInfo.latlng[1])
+        .then(weatherData => {
+            setWeather(weatherData)
+        })
+        .catch(error => {
+            console.log('Cannot load weather')
+        })
+    }, [])
+
+    if (!weather) {
+        return null
+    }
+
     return (
         <div>
             <h2>{country.name.common}</h2>
