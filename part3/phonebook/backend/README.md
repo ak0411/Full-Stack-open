@@ -1,1 +1,1 @@
-https://ak0411-phonebook-backend.fly.dev/
+https://ak0411-phonebook.fly.dev/
