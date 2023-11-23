@@ -1,19 +1,27 @@
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/person')
+require('dotenv').config()
+
 const app = express()
 
-app.use(express.static('build'))
-app.use(express.json())
+
+const unknownEndpoint = (req, res) => {
+    res.status(404).send({ error: 'unknown endpoint' })
+}
 
 morgan.token('body', req => {
     return JSON.stringify(req.body)
 })
 
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 app.use(cors())
+app.use(express.json())
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+app.use(express.static('build'))
 
-let persons = [
+
+let localPersons = [
     { 
       "id": 1,
       "name": "Arto Hellas",
@@ -37,38 +45,34 @@ let persons = [
 ]
 
 app.get('/info', (req, res) => {
-    const currentDate = new Date().toLocaleString();
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    res.send(
+    Person.countDocuments({}).then(count => {
+        const currentDate = new Date()
+        res.send(
         `<div>
-            <p>Phonebook has info for ${persons.length} people</p>
-            <p>${currentDate} (${timeZone})</p>
+            <p>Phonebook has info for ${count} people</p>
+            <p>${currentDate}</p>
         </div>`
-    )
+        )
+    })
 })
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person.find({}).then(persons => {
+        res.json(persons)
+    })
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const person = persons.find(p => p.id === id)
-    
-    if (person) {
+    Person.findById(req.params.id).then(person => {
         res.json(person)
-    } else {
-        res.status(404).end()
-    }
+    })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
     const id = Number(req.params.id)
-    persons = persons.filter(p => p.id != id)
+    localPersons = localPersons.filter(p => p.id != id)
     res.status(204).end()
 })
-
-const getRandomInt = max => Math.floor(Math.random() * max)
 
 app.post('/api/persons', (req, res) => {
     const body = req.body
@@ -77,22 +81,25 @@ app.post('/api/persons', (req, res) => {
         return res.status(400).json({
             error: 'name or number is missing'
         })
-    } else if (persons.some(p => p.name === body.name)) {
+    } else if (localPersons.some(p => p.name === body.name)) {
         return res.status(400).json({
             error: 'name must be unique'
         })
     }
 
-    const person = {
-        id: getRandomInt(1000000000),
+    const person = new Person({
         name: body.name,
         number: body.number
-    }
+    })
 
-    persons = persons.concat(person)
-    res.json(person)
+    person.save().then(savedPerson => {
+        res.json(savedPerson)
+    })
 })
 
-const PORT = process.env.PORT || 3001
-app.listen(PORT)
-console.log(`Server running on port ${PORT}`)
+app.use(unknownEndpoint)
+
+const PORT = process.env.PORT
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
+})
