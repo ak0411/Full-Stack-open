@@ -29,13 +29,7 @@ const App = () => {
         setPersons(initialPersons)
       })
       .catch(error => {
-        setNotification({
-          isError: true,
-          message: 'Cannot load phonebook'
-        })
-        setTimeout(() => {
-          setNotification(null)
-        }, 5000)
+        Notify(true, 'Cannot load phonebook')
       })
   }, [])
 
@@ -55,8 +49,13 @@ const App = () => {
             Notify(false, `Updated ${returnedPerson.name}`)
           })
           .catch(error => {
-            Notify(true, `Information of ${updatedPerson.name} has already been removed from server`)
-            setPersons(persons.filter(p => p.id !== updatedPerson.id))
+            console.log(error)
+            if (error.code === 'ERR_BAD_REQUEST') {
+              Notify(true, error.response.data.error)
+            } else {
+              Notify(true, `Information of ${updatedPerson.name} has already been removed from server`)
+              setPersons(persons.filter(p => p.id !== updatedPerson.id))
+            }
           })
       }
     } else {
@@ -73,7 +72,7 @@ const App = () => {
           Notify(false, `Added ${returnedPerson.name}`)
         })
         .catch(error => {
-          Notify(true, `Failed to add ${newName}`)
+          Notify(true, error.response.data.error)
         })
     }
   }
