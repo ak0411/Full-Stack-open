@@ -1,5 +1,6 @@
 const _ = require('lodash')
 
+// eslint-disable-next-line no-unused-vars
 const dummy = (blogs) => {
   return 1
 }
@@ -23,9 +24,9 @@ const mostBlogs = (blogs) => {
     return {}
   }
 
-  const blogsByAuthor = _.groupBy(blogs, 'author');
+  const blogsByAuthor = _.groupBy(blogs, 'author')
 
-  const topAuthor = _.maxBy(Object.keys(blogsByAuthor), author => blogsByAuthor[author].length);
+  const topAuthor = _.maxBy(Object.keys(blogsByAuthor), author => blogsByAuthor[author].length)
 
   return {
     author: topAuthor,
@@ -38,14 +39,14 @@ const mostLikes = (blogs) => {
     return {}
   }
 
-  const blogsByAuthor = _.groupBy(blogs, 'author');
+  const blogsByAuthor = _.groupBy(blogs, 'author')
 
   const likesByAuthor = _.mapValues(blogsByAuthor, authorBlogs =>
     _.sumBy(authorBlogs, 'likes')
   )
 
-  const topAuthor = _.maxBy(Object.keys(likesByAuthor), author => likesByAuthor[author]);
-  
+  const topAuthor = _.maxBy(Object.keys(likesByAuthor), author => likesByAuthor[author])
+
   return {
     author: topAuthor,
     likes: likesByAuthor[topAuthor]
