@@ -7,9 +7,29 @@ const Blog = require('../models/blog')
 const bcrypt = require('bcrypt')
 const User = require('../models/user')
 
+let token
+
 beforeEach(async () => {
   await Blog.deleteMany({})
   await Blog.insertMany(helper.initialBlogs)
+
+  await User.deleteMany({})
+
+  const user = {
+    username: 'admin',
+    name: 'Superuser',
+    password: 'password'
+  }
+
+  await api
+    .post('/api/users')
+    .send(user)
+
+  const response = await api
+    .post('/api/login')
+    .send(user)
+
+  token = response.body.token
 })
 
 describe('when there is initially some blogs saved', () => {
@@ -26,6 +46,7 @@ describe('when there is initially some blogs saved', () => {
 
 describe('addition of a new blog', () => {
   test('a valid blog can be added', async () => {
+
     const newBlog = {
       title: 'Type wars',
       author: 'Robert C. Martin',
@@ -35,6 +56,7 @@ describe('addition of a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -48,6 +70,24 @@ describe('addition of a new blog', () => {
     )
   })
 
+  test('fails if token is not provided', async () => {
+    const newBlog = {
+      title: 'Type wars',
+      author: 'Robert C. Martin',
+      url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
+      likes: 2
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+  })
+
   test('adding blog with missing likes property defaults to zero', async () => {
     const newBlog = {
       title: 'TDD harms architecture',
@@ -57,6 +97,7 @@ describe('addition of a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -74,6 +115,7 @@ describe('addition of a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `bearer ${token}`)
       .send(newBlog)
       .expect(400)
 
