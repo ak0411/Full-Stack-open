@@ -125,22 +125,47 @@ describe('addition of a new blog', () => {
 })
 
 describe('deletion of a blog', () => {
-  test('succeeds with status code 204 if id is valid', async () => {
+  test('succeeds with 204 if id is valid and authorized user', async () => {
+    const newBlog = {
+      title: 'How to Delete a Blog',
+      author: 'Bloggar',
+      url: 'https://example.com/delete-blog',
+      likes: 250
+    }
+
+    const response = await api
+      .post('/api/blogs')
+      .set('Authorization', `bearer ${token}`)
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    await api
+      .delete(`/api/blogs/${response.body.id}`)
+      .set('Authorization', `bearer ${token}`)
+      .expect(204)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).not.toContainEqual(response.body)
+  })
+
+  test('fails with 401 unauthorized if token is not provided', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToDelete = blogsAtStart[0]
 
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
-      .expect(204)
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
 
     const blogsAtEnd = await helper.blogsInDb()
-    expect(blogsAtEnd).toHaveLength(blogsAtStart.length - 1)
-    expect(blogsAtEnd).not.toContainEqual(blogToDelete)
+    expect(blogsAtEnd).toHaveLength(blogsAtStart.length)
   })
 })
 
+
 describe('when updating a blog', () => {
-  test('number of likes can be updated', async () => {
+  test('number of likes can be updated for authorized user', async () => {
     const newBlog = {
       title: 'First class tests',
       author: 'Robert C. Martin',
@@ -150,6 +175,7 @@ describe('when updating a blog', () => {
 
     const response = await api
       .post('/api/blogs')
+      .set('Authorization', `bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -158,12 +184,34 @@ describe('when updating a blog', () => {
 
     await api
       .put(`/api/blogs/${response.body.id}`)
+      .set('Authorization', `bearer ${token}`)
       .send(updatedBlog)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
     const blogsAtEnd = await helper.blogsInDb()
-    expect(blogsAtEnd).toContainEqual(updatedBlog)
+    const foundBlog = blogsAtEnd.find(b => b.title === newBlog.title)
+
+    expect(foundBlog).not.toContain(undefined)
+    expect(foundBlog.likes).toBe(newBlog.likes + 1)
+  })
+
+  test('fails with 401 unauthorized if token is not provided', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToUpdate = blogsAtStart[0]
+
+    const updatedBlog = { ...blogToUpdate.body, likes: blogToUpdate.likes + 1 }
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(updatedBlog)
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    const foundBlog = blogsAtEnd.find(b => b.title === blogToUpdate.title)
+
+    expect(foundBlog.likes).toBe(blogToUpdate.likes)
   })
 })
 
