@@ -61,12 +61,11 @@ const App = () => {
     blogService
       .create(blogObject)
       .then(returnedBlog => {
-        console.log(returnedBlog, returnedBlog.user, returnedBlog.user.name)
         setBlogs(blogs.concat(returnedBlog))
         Notify({ isError: false, message: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added` })
       })
       .catch(exception => {
-        Notify({ isError: true, message: exception.message })
+        Notify({ isError: true, message: exception.response.data.error })
       })
   }
 
@@ -79,8 +78,22 @@ const App = () => {
         setBlogs(blogs.map(b => b.id !== returnedBlog.id ? b : returnedBlog))
       })
       .catch(exception => {
-        Notify({ isError: true, message: exception.message })
+        Notify({ isError: true, message: exception.response.data.error })
       })
+  }
+
+  const onRemove = (blog) => {
+    if (window.confirm(`Remove ${blog.title} by ${blog.author}?`)) {
+      blogService
+      .remove(blog)
+      .then(() => {
+        Notify({ isError: false, message: `Successfully removed ${blog.title} by ${blog.author}` })
+        setBlogs(blogs.filter(b => b.id !== blog.id))
+      })
+      .catch(exception => {
+        Notify({ isError: true, message: exception.response.data.error })
+      })
+    }  
   }
 
   const byDescLikes = (b1, b2) => b2.likes - b1.likes
@@ -98,14 +111,22 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <Notification notification={notification}/>
+      <Notification notification={notification} />
       <ShowUser user={user} setUser={setUser} />
       <Togglable buttonLabel="new blog" ref={blogFormRef} >
         <BlogForm addBlog={addBlog} />
       </Togglable>
       {blogs
         .sort(byDescLikes)
-        .map(blog => <Blog key={blog.id} blog={blog} onLike={onLike} />)
+        .map(blog => 
+          <Blog 
+            key={blog.id}
+            blog={blog}
+            user={user}
+            onLike={onLike}
+            onRemove={onRemove}
+          />
+        )
       }
     </div>
   )

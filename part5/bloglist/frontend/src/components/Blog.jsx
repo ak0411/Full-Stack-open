@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const Blog = ({ blog, onLike }) => {
+const Blog = ({ blog, user, onLike, onRemove }) => {
   const [visible, setVisible] = useState(false)
 
   const showWhenVisible = { display: visible ? '' : 'none' }
@@ -18,8 +18,7 @@ const Blog = ({ blog, onLike }) => {
     marginBottom: 5
   }
 
-  const user = JSON.parse(window.localStorage.getItem('loggedUser'))
-  const creator = blog.user.username === user.username ? user : blog.user
+  const creator = typeof blog.user === 'object' ? blog.user : user
 
   return (
     <div style={blogStyle}>
@@ -29,7 +28,8 @@ const Blog = ({ blog, onLike }) => {
       <div style={showWhenVisible}>
         <a href={blog.url} target="_blank" rel="noreferrer">{blog.url}</a>
         <div>likes: {blog.likes} <button onClick={() => onLike(blog)}>like</button></div>
-        <div>{creator && creator.name}</div>
+        {creator && <div>{creator.name}</div>}
+        <button onClick={() => onRemove(blog)}>remove</button>
       </div>
     </div>
   )

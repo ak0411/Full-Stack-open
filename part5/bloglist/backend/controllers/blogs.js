@@ -24,7 +24,7 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) =
   const blog = await Blog.findById(request.params.id)
 
   if (blog.user.toString() !== user.id.toString()) {
-    return response.status(401).json({ error: 'unauthorized' })
+    return response.status(401).json({ error: `Unauthorized, cannot remove ${blog.title} by ${blog.author}` })
   }
 
   await Blog.findByIdAndRemove(request.params.id)
@@ -36,7 +36,7 @@ blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
   const blog = new Blog(request.body)
 
   if (!user) {
-    return response.status(401).json({ error: 'unauthorized' })
+    return response.status(401).json({ error: `Unauthorized, cannot update ${blog.title} by ${blog.author}` })
   }
 
   const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
