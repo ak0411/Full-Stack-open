@@ -35,7 +35,7 @@ blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
   const user = request.user
   const blog = new Blog(request.body)
 
-  if (blog.user.toString() !== user.id.toString()) {
+  if (!user) {
     return response.status(401).json({ error: 'unauthorized' })
   }
 

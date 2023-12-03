@@ -29,6 +29,16 @@ const App = () => {
     }
   }, [])
 
+  const Notify = ({ isError, message }) => {
+    setNotification({
+      isError: isError,
+      message: message
+    });
+    setTimeout(() => {
+      setNotification(null)
+    }, 5000)
+  }
+
   const loginUser = (userObject) => {
     loginService
       .login(userObject)
@@ -39,7 +49,7 @@ const App = () => {
         blogService.setToken(returnedUser.token)
         setUser(returnedUser)
       })
-      .catch(exception => {
+      .catch(() => {
         Notify({ isError: true, message: 'wrong credentials' })
       })
   }
@@ -51,25 +61,29 @@ const App = () => {
     blogService
       .create(blogObject)
       .then(returnedBlog => {
+        console.log(returnedBlog, returnedBlog.user, returnedBlog.user.name)
         setBlogs(blogs.concat(returnedBlog))
-        console.log('success')
         Notify({ isError: false, message: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added` })
       })
       .catch(exception => {
-        console.log('catch exception:', exception.message)
         Notify({ isError: true, message: exception.message })
       })
   }
 
-  const Notify = ({ isError, message }) => {
-    setNotification({
-      isError: isError,
-      message: message
-    });
-    setTimeout(() => {
-      setNotification(null)
-    }, 5000)
+  const onLike = (blog) => {
+    const updatedBlog = { ...blog, likes: blog.likes + 1}
+    blogService
+      .update(updatedBlog)
+      .then(returnedBlog => {
+        Notify({ isError: false, message: `You liked ${returnedBlog.title} by ${returnedBlog.author}` })
+        setBlogs(blogs.map(b => b.id !== returnedBlog.id ? b : returnedBlog))
+      })
+      .catch(exception => {
+        Notify({ isError: true, message: exception.message })
+      })
   }
+
+  const byDescLikes = (b1, b2) => b2.likes - b1.likes
 
   if (user === null) {
     return (
@@ -89,9 +103,10 @@ const App = () => {
       <Togglable buttonLabel="new blog" ref={blogFormRef} >
         <BlogForm addBlog={addBlog} />
       </Togglable>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
+      {blogs
+        .sort(byDescLikes)
+        .map(blog => <Blog key={blog.id} blog={blog} onLike={onLike} />)
+      }
     </div>
   )
 }
