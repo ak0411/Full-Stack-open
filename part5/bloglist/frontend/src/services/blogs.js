@@ -28,7 +28,7 @@ const update = async blog => {
 
   const request = axios.put(`${baseUrl}/${blog.id}`, blog, config)
   return request.then(response => response.data)
-} 
+}
 
 const remove = async blog => {
   const config = {

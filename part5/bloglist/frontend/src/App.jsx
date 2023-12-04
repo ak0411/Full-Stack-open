@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import LoginForm from './components/LoginForm'
-import ShowUser from './components/ShowUser'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
@@ -17,7 +16,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs(blogs)
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -33,7 +32,7 @@ const App = () => {
     setNotification({
       isError: isError,
       message: message
-    });
+    })
     setTimeout(() => {
       setNotification(null)
     }, 5000)
@@ -54,6 +53,11 @@ const App = () => {
       })
   }
 
+  const handleLogout = () => {
+    window.localStorage.removeItem('loggedUser')
+    setUser(null)
+  }
+
   const blogFormRef = useRef()
 
   const addBlog = (blogObject) => {
@@ -70,7 +74,7 @@ const App = () => {
   }
 
   const onLike = (blog) => {
-    const updatedBlog = { ...blog, likes: blog.likes + 1}
+    const updatedBlog = { ...blog, likes: blog.likes + 1 }
     blogService
       .update(updatedBlog)
       .then(returnedBlog => {
@@ -85,15 +89,15 @@ const App = () => {
   const onRemove = (blog) => {
     if (window.confirm(`Remove ${blog.title} by ${blog.author}?`)) {
       blogService
-      .remove(blog)
-      .then(() => {
-        Notify({ isError: false, message: `Successfully removed ${blog.title} by ${blog.author}` })
-        setBlogs(blogs.filter(b => b.id !== blog.id))
-      })
-      .catch(exception => {
-        Notify({ isError: true, message: exception.response.data.error })
-      })
-    }  
+        .remove(blog)
+        .then(() => {
+          Notify({ isError: false, message: `Successfully removed ${blog.title} by ${blog.author}` })
+          setBlogs(blogs.filter(b => b.id !== blog.id))
+        })
+        .catch(exception => {
+          Notify({ isError: true, message: exception.response.data.error })
+        })
+    }
   }
 
   const byDescLikes = (b1, b2) => b2.likes - b1.likes
@@ -112,14 +116,14 @@ const App = () => {
     <div>
       <h2>blogs</h2>
       <Notification notification={notification} />
-      <ShowUser user={user} setUser={setUser} />
+      <div>{user.name} logged in <button onClick={handleLogout}>logout</button></div>
       <Togglable buttonLabel="new blog" ref={blogFormRef} >
         <BlogForm addBlog={addBlog} />
       </Togglable>
       {blogs
         .sort(byDescLikes)
-        .map(blog => 
-          <Blog 
+        .map(blog =>
+          <Blog
             key={blog.id}
             blog={blog}
             user={user}

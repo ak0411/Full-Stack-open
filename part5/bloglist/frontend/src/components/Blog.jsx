@@ -1,10 +1,11 @@
 import { useState } from 'react'
+import PropTypes from 'prop-types'
 
 const Blog = ({ blog, user, onLike, onRemove }) => {
   const [visible, setVisible] = useState(false)
 
   const showWhenVisible = { display: visible ? '' : 'none' }
-  
+
   const toggleVisibility = () => {
     setVisible(!visible)
   }
@@ -29,10 +30,17 @@ const Blog = ({ blog, user, onLike, onRemove }) => {
         <a href={blog.url} target="_blank" rel="noreferrer">{blog.url}</a>
         <div>likes: {blog.likes} <button onClick={() => onLike(blog)}>like</button></div>
         {creator && <div>{creator.name}</div>}
-        <button onClick={() => onRemove(blog)}>remove</button>
+        {creator.username === user.username && <button onClick={() => onRemove(blog)}>remove</button>}
       </div>
     </div>
   )
+}
+
+Blog.prototype = {
+  blog: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
+  onLike: PropTypes.func.isRequired,
+  onRemove: PropTypes.func.isRequired
 }
 
 export default Blog
