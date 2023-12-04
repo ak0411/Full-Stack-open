@@ -22,11 +22,11 @@ const Blog = ({ blog, user, onLike, onRemove }) => {
   const creator = typeof blog.user === 'object' ? blog.user : user
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className='blogContent'>
       <div>
         {blog.title} {blog.author} <button onClick={toggleVisibility}>{visible ? 'hide' : 'show'}</button>
       </div>
-      <div style={showWhenVisible}>
+      <div style={showWhenVisible} className='togglableContent'>
         <a href={blog.url} target="_blank" rel="noreferrer">{blog.url}</a>
         <div>likes: {blog.likes} <button onClick={() => onLike(blog)}>like</button></div>
         {creator && <div>{creator.name}</div>}
