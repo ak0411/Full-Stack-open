@@ -1,5 +1,6 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const middleware = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response) => {
@@ -14,7 +15,8 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
 
   const savedBlog = await blog.save()
   user.blogs = user.blogs.concat(savedBlog._id)
-  await user.save()
+  const savedUser = await user.save()
+  savedBlog.user = savedUser
 
   response.status(201).json(savedBlog)
 })
@@ -40,6 +42,9 @@ blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
   }
 
   const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+  const creator = await User.findById(updatedBlog.user.toJSON(), { username: 1, name: 1 })
+  updatedBlog.user = creator
+
   response.json(updatedBlog)
 })
 

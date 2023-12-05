@@ -21,6 +21,7 @@ const BlogForm = ({ addBlog }) => {
         <div>
           title:
           <input
+            id="title"
             type="text"
             autoComplete="off"
             value={title}
@@ -31,6 +32,7 @@ const BlogForm = ({ addBlog }) => {
         <div>
           author:
           <input
+            id="author"
             type="text"
             autoComplete="off"
             value={author}
@@ -41,6 +43,7 @@ const BlogForm = ({ addBlog }) => {
         <div>
           url:
           <input
+            id="url"
             type="text"
             autoComplete="off"
             value={url}
@@ -48,7 +51,7 @@ const BlogForm = ({ addBlog }) => {
             onChange={({ target }) => setUrl(target.value)}
           />
         </div>
-        <button type="submit">create</button>
+        <button id="create-button" type="submit">create</button>
       </form>
     </div>
   )

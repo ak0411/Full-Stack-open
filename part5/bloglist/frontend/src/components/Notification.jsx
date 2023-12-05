@@ -13,11 +13,12 @@ const Notification = ({ notification }) => {
   }
 
   return (
-    <div style={
-      notification.isError
-        ? { ...style, color: 'red' }
-        : { ...style, color: 'green' }
-    }>
+    <div
+      id="notification"
+      style={ notification.isError ?
+        { ...style, color: 'red' } :
+        { ...style, color: 'green' }
+      }>
       {notification.message}
     </div>
   )

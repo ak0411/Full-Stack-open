@@ -10,7 +10,6 @@ const Blog = ({ blog, user, onLike, onRemove }) => {
     setVisible(!visible)
   }
 
-
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -19,8 +18,6 @@ const Blog = ({ blog, user, onLike, onRemove }) => {
     marginBottom: 5
   }
 
-  const creator = typeof blog.user === 'object' ? blog.user : user
-
   return (
     <div style={blogStyle} className='blogContent'>
       <div>
@@ -28,9 +25,9 @@ const Blog = ({ blog, user, onLike, onRemove }) => {
       </div>
       <div style={showWhenVisible} className='togglableContent'>
         <a href={blog.url} target="_blank" rel="noreferrer">{blog.url}</a>
-        <div>likes: {blog.likes} <button onClick={() => onLike(blog)}>like</button></div>
-        {creator && <div>{creator.name}</div>}
-        {creator.username === user.username && <button onClick={() => onRemove(blog)}>remove</button>}
+        <div>likes: {blog.likes} <button id="like-button" onClick={() => onLike(blog)}>like</button></div>
+        {blog.user && <div>{blog.user.name}</div>}
+        {blog.user && blog.user.username === user.username && <button id="remove-button" onClick={() => onRemove(blog)}>remove</button>}
       </div>
     </div>
   )
