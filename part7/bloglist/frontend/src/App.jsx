@@ -1,22 +1,32 @@
-import { useState, useEffect, useRef } from 'react'
-import Blog from './components/Blog'
-import LoginForm from './components/LoginForm'
-import BlogForm from './components/BlogForm'
-import Notification from './components/Notification'
-import Togglable from './components/Togglable'
-import blogService from './services/blogs'
-import loginService from './services/login'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { setNotification } from './reducers/notificationReducer'
+
+import LoginForm from './components/LoginForm'
+import Notification from './components/Notification'
+import BlogsView from './components/BlogsView'
+import UsersView from './components/UsersView'
+
+import blogService from './services/blogs'
+import userService from './services/users'
 import { initializeBlogs } from './reducers/blogReducer'
+import { login, logout } from './reducers/userReducer'
+
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+  useParams,
+  useNavigate,
+  useMatch
+} from 'react-router-dom'
+
 
 const App = () => {
-  const blogs = useSelector(state => state.blogs)
-  const [user, setUser] = useState(null)
-
+  const [users, setUsers] = useState([])
+  const user = useSelector(state => state.user)
   const dispatch = useDispatch()
-
-  const blogFormRef = useRef()
 
   useEffect(() => {
     dispatch(initializeBlogs())
@@ -26,40 +36,25 @@ const App = () => {
     const loggedUserJSON = window.localStorage.getItem('loggedUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
+      dispatch(login(user))
       blogService.setToken(user.token)
     }
+  }, [dispatch])
+
+  useEffect(() => {
+    userService
+      .getAll()
+      .then(returnedUsers => {
+        setUsers(returnedUsers)
+      })
   }, [])
-
-  const loginUser = (userObject) => {
-    loginService
-      .login(userObject)
-      .then((returnedUser) => {
-        window.localStorage.setItem('loggedUser', JSON.stringify(returnedUser))
-        blogService.setToken(returnedUser.token)
-        setUser(returnedUser)
-      })
-      .catch(() => {
-        dispatch(setNotification({
-          isError: true,
-          message: 'wrong credentials'
-        }, 5))
-      })
-  }
-
-  const handleLogout = () => {
-    window.localStorage.removeItem('loggedUser')
-    setUser(null)
-  }
-
-  const byDescLikes = (b1, b2) => b2.likes - b1.likes
 
   if (user === null) {
     return (
       <div>
         <h2>log in to application</h2>
         <Notification />
-        <LoginForm loginUser={loginUser} />
+        <LoginForm />
       </div>
     )
   }
@@ -70,20 +65,14 @@ const App = () => {
       <Notification />
       <div>
         {user.name} logged in{' '}
-        <button id="logout-button" onClick={handleLogout}>
+        <button id="logout-button" onClick={() => dispatch(logout())}>
           logout
         </button>
       </div>
-      <Togglable buttonLabel="new blog" ref={blogFormRef}>
-        <BlogForm blogFormRef={blogFormRef} />
-      </Togglable>
-      {[...blogs].sort(byDescLikes).map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          user={user}
-        />
-      ))}
+      <Routes>
+        <Route path="/" element={<BlogsView />} />
+        <Route path="/users" element={<UsersView users={users} />} />
+      </Routes>
     </div>
   )
 }

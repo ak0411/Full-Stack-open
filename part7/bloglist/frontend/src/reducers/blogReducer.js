@@ -25,14 +25,23 @@ const blogSlice = createSlice({
 })
 
 export const initializeBlogs = () => {
-  return async dispatch => {
-    const blogs = await blogService.getAll()
-    dispatch(setBlogs(blogs))
+  return dispatch => {
+    blogService
+      .getAll()
+      .then(blogs => {
+        dispatch(setBlogs(blogs))
+      })
+      .catch((exception) => {
+        dispatch(setNotification({
+          isError: true,
+          message: exception.response.data.error
+        }, 5))
+      })
   }
 }
 
 export const addBlog = (blog, blogFormRef) => {
-  return async dispatch => {
+  return dispatch => {
     blogFormRef.current.toggleVisibility()
     blogService
       .create(blog)
@@ -53,7 +62,7 @@ export const addBlog = (blog, blogFormRef) => {
 }
 
 export const likeBlog = (blog) => {
-  return async dispatch => {
+  return dispatch => {
     const updatedBlog = { ...blog, likes: blog.likes + 1 }
     blogService
       .update(updatedBlog)
@@ -74,7 +83,7 @@ export const likeBlog = (blog) => {
 }
 
 export const deleteBlog = (blog) => {
-  return async dispatch => {
+  return dispatch => {
     blogService
       .remove(blog)
       .then(() => {
