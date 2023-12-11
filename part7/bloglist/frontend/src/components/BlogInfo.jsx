@@ -26,6 +26,13 @@ const BlogInfo = () => {
     }
   }
 
+  const addComment = (event) => {
+    event.preventDefault()
+    const content = event.target.comment.value
+    event.target.comment.value = ''
+    console.log(content)
+  }
+
   return (
     <div>
       <h1>{blog.title} by {blog.author}</h1>
@@ -44,6 +51,16 @@ const BlogInfo = () => {
           remove
         </button>
       )}
+      <h2>comments</h2>
+      <form onSubmit={addComment}>
+        <input name="comment" />
+        <button type="submit">add</button>
+      </form>
+      <ul>
+        {blog.comments.map(c =>
+          <li key={c.id}>{c.comment}</li>
+        )}
+      </ul>
     </div>
   )
 }
