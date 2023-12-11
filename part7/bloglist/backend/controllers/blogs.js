@@ -25,11 +25,16 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
 
 blogsRouter.post('/:id/comments', async (request, response) => {
   const blog = await Blog.findById(request.params.id)
-
   const comment = new Comment({ ...request.body, blog: blog.id })
   const savedComment = await comment.save()
   blog.comments = blog.comments.concat(savedComment._id)
-  const savedBlog = await blog.save()
+
+  let savedBlog = await blog.save()
+  savedBlog = await Blog
+    .findById(savedBlog._id)
+    .populate('user', { username: 1, name: 1 })
+    .populate('comments', { comment: 1 })
+
   response.status(201).json(savedBlog)
 })
 
@@ -50,25 +55,27 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) =
 })
 
 blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
+  const { title, url, author, likes } = request.body
   const user = request.user
-  const blog = new Blog(request.body)
 
   if (!user) {
     return response
       .status(401)
       .json({
-        error: `Unauthorized, cannot update ${blog.title} by ${blog.author}`,
+        error: `Unauthorized, cannot update ${title} by ${author}`,
       })
   }
 
-  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
-    new: true,
-  })
-  const creator = await User.findById(updatedBlog.user.toJSON(), {
-    username: 1,
-    name: 1,
-  })
-  updatedBlog.user = creator
+  let updatedBlog = await Blog
+    .findByIdAndUpdate(
+      request.params.id,
+      { title, url, author, likes },
+      { new: true }
+    )
+
+  updatedBlog = await Blog.findById(updatedBlog._id)
+    .populate('user', { username: 1, name: 1 })
+    .populate('comments', { comment: 1 })
 
   response.json(updatedBlog)
 })

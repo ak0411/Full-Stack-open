@@ -97,7 +97,19 @@ export const deleteBlog = (blog) => {
         dispatch(setNotification({ isError: true, message: exception.response.data.error }, 5))
       })
   }
+}
 
+export const addComment = (blog, comment) => {
+  return dispatch => {
+    blogService
+      .addComment(blog.id, comment)
+      .then((returnedBlog) => {
+        dispatch(update(returnedBlog))
+      })
+      .catch((exception) => {
+        dispatch(setNotification({ isError: true, message: exception.response.data.error }, 5))
+      })
+  }
 }
 
 export const { setBlogs, append, update, remove } = blogSlice.actions

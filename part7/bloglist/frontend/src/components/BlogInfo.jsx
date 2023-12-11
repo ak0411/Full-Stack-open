@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
-import { deleteBlog, likeBlog } from '../reducers/blogReducer'
+import { addComment, deleteBlog, likeBlog } from '../reducers/blogReducer'
 
 const BlogInfo = () => {
   const currentUser = useSelector(state => state.user)
@@ -26,11 +26,12 @@ const BlogInfo = () => {
     }
   }
 
-  const addComment = (event) => {
+  const handleComment = (event) => {
     event.preventDefault()
     const content = event.target.comment.value
     event.target.comment.value = ''
-    console.log(content)
+    const comment = { comment: content }
+    dispatch(addComment(blog, comment))
   }
 
   return (
@@ -52,15 +53,16 @@ const BlogInfo = () => {
         </button>
       )}
       <h2>comments</h2>
-      <form onSubmit={addComment}>
-        <input name="comment" />
-        <button type="submit">add</button>
+      <form onSubmit={handleComment}>
+        <input name="comment" autoComplete="off" />
+        <button type="submit">add comment</button>
       </form>
-      <ul>
-        {blog.comments.map(c =>
-          <li key={c.id}>{c.comment}</li>
-        )}
-      </ul>
+      {blog.comments.length > 0 &&
+        <ul>
+          {blog.comments.map(c =>
+            <li key={c.id}>{c.comment}</li>
+          )}
+        </ul>}
     </div>
   )
 }
