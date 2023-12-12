@@ -12,7 +12,7 @@ const BlogsView = () => {
 
   return (
     <div>
-      <Togglable buttonLabel="new blog" ref={blogFormRef}>
+      <Togglable buttonLabel="New Blog" ref={blogFormRef}>
         <BlogForm blogFormRef={blogFormRef} />
       </Togglable>
       {[...blogs].sort(byDescLikes).map((blog) => (

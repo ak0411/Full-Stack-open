@@ -15,30 +15,36 @@ const LoginForm = () => {
   }
 
   return (
-    <form onSubmit={handleLogin}>
-      <div>
-        username
+    <form onSubmit={handleLogin} className='my-4'>
+      <div className='mb-3'>
+        <label htmlFor='username' className='form-label'>
+          Username
+        </label>
         <input
-          id="username"
-          type="text"
-          autoComplete="off"
+          id='username'
+          type='text'
+          className='form-control'
+          autoComplete='off'
           value={username}
-          name="Username"
+          name='Username'
           onChange={({ target }) => setUsername(target.value)}
         />
       </div>
-      <div>
-        password
+      <div className='mb-3'>
+        <label htmlFor='password' className='form-label'>
+          Password
+        </label>
         <input
-          id="password"
-          type="password"
+          id='password'
+          type='password'
+          className='form-control'
           value={password}
-          name="Password"
+          name='Password'
           onChange={({ target }) => setPassword(target.value)}
         />
       </div>
-      <button id="login-button" type="submit">
-        login
+      <button id='login-button' type='submit' className='btn btn-primary'>
+        Login
       </button>
     </form>
   )

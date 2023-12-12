@@ -7,23 +7,15 @@ const Notification = () => {
     return null
   }
 
-  const style = {
-    background: 'lightgrey',
-    fontSize: '16px',
-    borderStyle: 'solid',
-    borderRadius: '5px',
-    padding: '10px',
-    marginBottom: '10px',
-  }
-
   return (
     <div
-      id="notification"
-      style={
+      id='notification'
+      className={
         notification.isError
-          ? { ...style, color: 'red' }
-          : { ...style, color: 'green' }
+          ? 'alert alert-danger'
+          : 'alert alert-success'
       }
+      role='alert'
     >
       {notification.message}
     </div>

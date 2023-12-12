@@ -18,47 +18,57 @@ const BlogForm = ( { blogFormRef }) => {
   }
 
   return (
-    <div className="formDiv">
-      <h2>create new blog</h2>
+    <div className='formDiv'>
+      <h2>Create New Blog</h2>
       <form onSubmit={handleAddBlog}>
-        <div>
-          title:
+        <div className='mb-3'>
+          <label htmlFor='title' className='form-label'>
+            Title:
+          </label>
           <input
-            id="title"
-            type="text"
-            autoComplete="off"
+            id='title'
+            type='text'
+            className='form-control'
+            autoComplete='off'
             value={title}
-            name="Title"
+            name='Title'
             onChange={({ target }) => setTitle(target.value)}
           />
         </div>
-        <div>
-          author:
+        <div className='mb-3'>
+          <label htmlFor='author' className='form-label'>
+            Author:
+          </label>
           <input
-            id="author"
-            type="text"
-            autoComplete="off"
+            id='author'
+            type='text'
+            className='form-control'
+            autoComplete='off'
             value={author}
-            name="Author"
+            name='Author'
             onChange={({ target }) => setAuthor(target.value)}
           />
         </div>
-        <div>
-          url:
+        <div className='mb-3'>
+          <label htmlFor='url' className='form-label'>
+            URL:
+          </label>
           <input
-            id="url"
-            type="text"
-            autoComplete="off"
+            id='url'
+            type='text'
+            className='form-control'
+            autoComplete='off'
             value={url}
-            name="Url"
+            name='Url'
             onChange={({ target }) => setUrl(target.value)}
           />
         </div>
-        <button id="create-button" type="submit">
-          create
+        <button id='create-button' type='submit' className='btn btn-success'>
+        Create
         </button>
       </form>
     </div>
+
   )
 }
 

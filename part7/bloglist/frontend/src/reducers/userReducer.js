@@ -11,6 +11,7 @@ const userSlice = createSlice({
       return action.payload
     },
     logout() {
+      window.localStorage.clear()
       return null
     }
   }

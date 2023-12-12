@@ -35,32 +35,56 @@ const BlogInfo = () => {
   }
 
   return (
-    <div>
-      <h1>{blog.title} by {blog.author}</h1>
-      <a href={blog.url} target="_blank" rel="noreferrer">
+    <div className='container'>
+      <h1 className='display-4'>
+        {blog.title} by {blog.author}
+      </h1>
+      <a href={blog.url} target='_blank' rel='noreferrer'>
         {blog.url}
       </a>
-      <div>
-        likes: {blog.likes}{' '}
-        <button id="like-button" onClick={() => dispatch(likeBlog(blog))}>
-          like
-        </button>
+      <div className='mt-1'>
+        <span className='text-muted'>Likes: {blog.likes}</span>
       </div>
-      {blog.user && <div>added by {blog.user.name}</div>}
-      {blog.user && blog.user.username === currentUser.username && (
-        <button id="remove-button" onClick={handleDelete}>
-          remove
-        </button>
+      {blog.user && (
+        <div className='mt-1'>
+          <span className='text-muted'>Added by {blog.user.name}</span>
+        </div>
       )}
-      <h2>comments</h2>
-      <form onSubmit={handleComment}>
-        <input name="comment" autoComplete="off" />
-        <button type="submit">add comment</button>
+      <div className='row g-3 mt-1'>
+        <div className='col-auto'>
+          <button
+            id='like-button'
+            onClick={() => dispatch(likeBlog(blog))}
+            className='btn btn-success'
+          >
+            Like
+          </button>
+        </div>
+        <div className='col-auto'>
+          {blog.user && blog.user.username === currentUser.username && (
+            <button
+              id='remove-button'
+              onClick={handleDelete}
+              className='btn btn-danger'
+            >
+              Remove
+            </button>
+          )}
+        </div>
+      </div >
+      <h2 className='display-5 mt-1'>Comments</h2>
+      <form className='row g-3 mb-3' onSubmit={handleComment}>
+        <div className='col-auto'>
+          <input className='form-control' type='text' name='comment' autoComplete='off' />
+        </div>
+        <div className='col-auto'>
+          <button className='btn btn-primary' type='submit'>Add comment</button>
+        </div>
       </form>
       {blog.comments.length > 0 &&
-        <ul>
+        <ul className='list-group list-group-flush'>
           {blog.comments.map(c =>
-            <li key={c.id}>{c.comment}</li>
+            <li className='list-group-item' key={c.id}>{c.comment}</li>
           )}
         </ul>}
     </div>

@@ -7,13 +7,13 @@ const UsersView = () => {
   if (!users) return null
 
   return (
-    <div>
+    <div className='container'>
       <h2>Users</h2>
-      <table>
+      <table className='table'>
         <thead>
           <tr>
-            <th></th>
-            <th>blogs created</th>
+            <th>User</th>
+            <th>Blogs Created</th>
           </tr>
         </thead>
         <tbody>
