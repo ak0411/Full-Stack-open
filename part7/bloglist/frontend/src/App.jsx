@@ -37,7 +37,7 @@ const App = () => {
     return (
       <div className='container d-flex align-items-center justify-content-center vh-100'>
         <div className='text-center'>
-          <h2>Log in to application</h2>
+          <h2>Log in to Blog App</h2>
           <Notification />
           <LoginForm />
         </div>
