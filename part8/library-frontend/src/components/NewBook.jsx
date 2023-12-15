@@ -9,12 +9,20 @@ const NewBook = () => {
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
 
-  const [ addBook ] = useMutation(ADD_BOOK)
+  const [ addBook ] = useMutation(ADD_BOOK, {
+    onError: (error) => {
+      const messages = error.graphQLErrors.map(e => e.message).join('\n')
+      console.log(messages)
+    },
+  })
 
-  const submit = async (event) => {
+  const submit = (event) => {
     event.preventDefault()
-
-    addBook({  variables: { title, author, published: Number(published), genres } })
+    addBook({
+      variables: {
+        title, author, published: Number(published), genres
+      }
+    })
 
     setTitle('')
     setPublished('')

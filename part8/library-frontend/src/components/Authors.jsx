@@ -1,9 +1,13 @@
-import { useMutation, useQuery } from "@apollo/client"
-import { ALL_AUTHORS, EDIT_AUTHOR } from "../queries"
+import { useMutation, useQuery } from '@apollo/client'
+import { ALL_AUTHORS, EDIT_AUTHOR } from '../queries'
 
 const EditAuthor = ({ authors }) => {
   const [ editAuthor ] = useMutation(EDIT_AUTHOR, {
-    refetchQueries: [ { query: ALL_AUTHORS } ]
+    refetchQueries: [ { query: ALL_AUTHORS } ],
+    onError: (error) => {
+      const messages = error.graphQLErrors.map(e => e.message).join('\n')
+      console.log(messages)
+    },
   })
 
   const submit = (event) => {
@@ -17,20 +21,21 @@ const EditAuthor = ({ authors }) => {
     event.target.name.value = ''
     event.target.born.value = ''
   }
+
   return (
     <div>
       <h2>Set birthyear</h2>
       <form onSubmit={submit}>
-        <select name="name">
-          {authors.map(author => 
+        <select name='name'>
+          {authors.map(author =>
             <option key={author.name} value={author.name}>{author.name}</option>
           )}
         </select>
         <div>
           born
-          <input type="number" name="born" />
+          <input type='number' name='born' autoComplete='off' />
         </div>
-        <button type="submit">update author</button>
+        <button type='submit'>update author</button>
       </form>
     </div>
   )
