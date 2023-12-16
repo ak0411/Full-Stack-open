@@ -20,10 +20,10 @@ const NewBook = () => {
           allBooks: allBooks.concat(response.data.addBook),
         }
       })
-    },
+    }
   })
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault()
     addBook({
       variables: {

@@ -10,7 +10,7 @@ const EditAuthor = ({ authors }) => {
     },
   })
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault()
 
     const name = event.target.name.value
