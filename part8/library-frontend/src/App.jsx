@@ -9,9 +9,24 @@ import LoginForm from './components/LoginForm'
 import NewBook from './components/NewBook'
 import Recommend from './components/Recommend'
 
-import { useApolloClient, useMutation } from '@apollo/client'
-import { LOGIN } from './queries'
+import { useApolloClient, useMutation, useSubscription } from '@apollo/client'
+import { ALL_BOOKS_BY_GENRE, BOOK_ADDED, LOGIN } from './queries'
 
+export const updateCache = (cache, query, addedBook) => {
+  const uniqByTitle = (a) => {
+    let seen = new Set()
+    return a.filter((item) => {
+      let k = item.title
+      return seen.has(k) ? false : seen.add(k)
+    })
+  }
+
+  cache.updateQuery(query, ({ allBooks }) => {
+    return {
+      allBooks: uniqByTitle(allBooks.concat(addedBook)),
+    }
+  })
+}
 
 const App = () => {
   const client = useApolloClient()
@@ -21,6 +36,14 @@ const App = () => {
   const padding = {
     padding: 5
   }
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data, client }) => {
+      const addedBook = data.data.bookAdded
+      alert(`'${addedBook.title}' by ${addedBook.author.name} has been added`)
+      updateCache(client.cache, { query: ALL_BOOKS_BY_GENRE, variables: { genre: '' } }, addedBook)
+    }
+  })
 
   useEffect(() => {
     if ( result.data ) {
