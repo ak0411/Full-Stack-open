@@ -33,57 +33,43 @@ const resolvers = {
     me: (root, args, context) => context.currentUser,
   },
   Author: {
-    bookCount: async (root) => Book.find({ author: root.id }).countDocuments()
+    bookCount: (root) => root.books.length
   },
   Mutation: {
     addBook: async (root, args, { currentUser }) => {
       if (!currentUser) {
-        throw new GraphQLError('not authenticated', {
+        throw new GraphQLError('Not authenticated', {
           extensions: {
             code: 'BAD_USER_INPUT',
-          }
+          },
         })
       }
 
-      const foundAuthor = await Author.findOne({ name: args.author })
-
-      let bookAuthor
-      if (!foundAuthor) {
-        const author = new Author({ name: args.author })
-
-        try {
-          bookAuthor = await author.save()
-        } catch (error) {
-          throw new GraphQLError('Saving author failed', {
-            extensions: {
-              code: 'BAD_USER_INPUT',
-              invalidArgs: args.author,
-              error
-            }
-          })
-        }
-      }
-
-      const author = bookAuthor
-        ? bookAuthor
-        : foundAuthor
-
-      const book = new Book({ ...args, author })
-
       try {
+        const author = await Author.findOneAndUpdate(
+          { name: args.author },
+          { $setOnInsert: { name: args.author } },
+          { upsert: true, new: true }
+        )
+
+        const book = new Book({ ...args, author })
+
         await book.save()
+
+        await Author.findByIdAndUpdate(author._id, { $addToSet: { books: book._id } })
+
+        pubsub.publish('BOOK_ADDED', { bookAdded: book })
+
+        return book
       } catch (error) {
+        console.error(error)
         throw new GraphQLError('Saving book failed', {
           extensions: {
             code: 'BAD_USER_INPUT',
-            error
-          }
+            error,
+          },
         })
       }
-
-      pubsub.publish('BOOK_ADDED', { bookAdded: book })
-
-      return book
     },
     editAuthor: async (root, args, { currentUser }) => {
       if (!currentUser) {
