@@ -8,36 +8,40 @@ const Part = ({ part }: { part: CoursePart }) => {
     );
   };
 
+  const style = {
+    marginBottom: 10
+  };
+
   switch (part.kind) {
     case "basic":
       return (
-        <p>
+        <div style={style}>
           <div><b>{part.name} {part.exerciseCount}</b></div>
           <div><i>{part.description}</i></div>
-        </p>
+        </div>
       );
     case "group":
       return (
-        <p>
+        <div style={style}>
           <div><b>{part.name} {part.exerciseCount}</b></div>
           <div>group projects: {part.groupProjectCount}</div>
-        </p>
+        </div>
       );
     case "background":
       return (
-        <p>
+        <div style={style}>
           <div><b>{part.name} {part.exerciseCount}</b></div>
           <div><i>{part.description}</i></div>
           <div>material: {part.backgroundMaterial}</div>
-        </p>
+        </div>
       );
     case "special":
       return (
-        <p>
+        <div style={style}>
           <div><b>{part.name} {part.exerciseCount}</b></div>
           <div><i>{part.description}</i></div>
           <div>required skills: {part.requirements.join(', ')}</div>
-        </p>
+        </div>
       );
     default:
       return assertNever(part);
