@@ -4,6 +4,7 @@ import patientService from "../../services/patients";
 import { Patient } from "../../types";
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
+import EntryInfo from "./EntryInfo";
 
 
 const PatientInfoPage = () => {
@@ -40,6 +41,15 @@ const PatientInfoPage = () => {
       <div>gender: {patient.gender}</div>
       <div>ssn: {patient.ssn}</div>
       <div>occupation: {patient.occupation}</div>
+      <div>
+        <h3>entries</h3>
+        {patient.entries.length === 0
+          ? <div>none</div>
+          : patient.entries.map(entry =>
+            <EntryInfo key={entry.id} entry={entry} />
+          )
+        }
+      </div>
     </div>
   );
 };
