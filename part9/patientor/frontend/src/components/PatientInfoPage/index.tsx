@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import patientService from "../../services/patients";
-import { Patient } from "../../types";
+import { Diagnosis, Patient } from "../../types";
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 import EntryInfo from "./EntryInfo";
+import diagnosisService from "../../services/diagnoses";
 
 
 const PatientInfoPage = () => {
   const [patient, setPatient] = useState<Patient>();
+  const [diagnoses, setDiagnoses] = useState<Diagnosis[]>();
   const id = useParams().id;
 
   useEffect(() => {
@@ -22,8 +24,18 @@ const PatientInfoPage = () => {
       });
   }, [id]);
 
+  useEffect(() => {
+    diagnosisService
+      .getAll()
+      .then(returnedDiagnoses => {
+        setDiagnoses(returnedDiagnoses);
+      })
+      .catch(error => {
+        console.log(error.response.data.error);
+      });
+  }, []);
 
-  if (!patient) {
+  if (!patient || !diagnoses) {
     return null;
   }
 
@@ -46,7 +58,7 @@ const PatientInfoPage = () => {
         {patient.entries.length === 0
           ? <div>none</div>
           : patient.entries.map(entry =>
-            <EntryInfo key={entry.id} entry={entry} />
+            <EntryInfo key={entry.id} entry={entry} diagnoses={diagnoses} />
           )
         }
       </div>
