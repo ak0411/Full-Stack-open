@@ -1,4 +1,7 @@
 import { Diagnosis, Entry } from "../../types";
+import HealthCheckEntryInfo from "./HealthCheckEntryInfo";
+import HospitalEntryInfo from "./HospitalEntryInfo";
+import OccupationalHealthcareEntryInfo from "./OccupationalHealthcareEntryInfo";
 
 interface Props {
   entry: Entry,
@@ -6,16 +9,22 @@ interface Props {
 }
 
 const EntryInfo = ({ entry, diagnoses }: Props) => {
-  return (
-    <div>
-      <p>{entry.date} <i>{entry.description}</i></p>
-      <ul>
-        {entry.diagnosisCodes && entry.diagnosisCodes.map(code =>
-          <li key={code}>{code} {diagnoses.find(d => d.code === code)?.name}</li>
-        )}
-      </ul>
-    </div>
-  );
+  const assertNever = (value: never): never => {
+    throw new Error(
+      `Unhandled discriminated union member: ${JSON.stringify(value)}`
+    );
+  };
+
+  switch (entry.type) {
+    case "Hospital":
+      return <HospitalEntryInfo entry={entry} diagnoses={diagnoses} />;
+    case "OccupationalHealthcare":
+      return <OccupationalHealthcareEntryInfo entry={entry} diagnoses={diagnoses} />;
+    case "HealthCheck":
+      return <HealthCheckEntryInfo entry={entry} diagnoses={diagnoses} />;
+    default:
+      return assertNever(entry);
+  }
 };
 
 export default EntryInfo;

@@ -54,7 +54,7 @@ const PatientInfoPage = () => {
       <div>ssn: {patient.ssn}</div>
       <div>occupation: {patient.occupation}</div>
       <div>
-        <h3>entries</h3>
+        <h2>entries</h2>
         {patient.entries.length === 0
           ? <div>none</div>
           : patient.entries.map(entry =>
