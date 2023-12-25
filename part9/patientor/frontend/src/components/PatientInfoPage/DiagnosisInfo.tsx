@@ -6,7 +6,7 @@ interface Props {
 }
 
 const DiagnosisInfo = ({ entry, diagnoses }: Props) => {
-  if (!entry.diagnosisCodes) return null;
+  if (!entry.diagnosisCodes || entry.diagnosisCodes.length === 0 ) return null;
 
   const diagnosisCodeMap: Record<string, string> = {};
 

@@ -100,16 +100,22 @@ const parseDiagnosisCodes = (object: unknown): Array<DiagnosisEntry['code']> => 
   return object.diagnosisCodes as Array<DiagnosisEntry['code']>;
 };
 
-const isDischarge = (discharge: any): discharge is Discharge => {
-  return discharge.date && isDate(discharge.date) && discharge.criteria && isString(discharge.criteria)
-};
+const isDischarge = (discharge: object): discharge is Discharge => {
+  return (
+    'date' in discharge &&
+    'criteria' in discharge &&
+    isString(discharge.date) &&
+    isDate(discharge.date) &&
+    isString(discharge.criteria)
+  )
+}
 
-const parseDischarge = (object: unknown): Discharge => {
-  if (!object || typeof object !== 'object' || !('date' in object) || !('criteria' in object) || !isDischarge(object)) {
-    throw new Error(`Incorrect or missing discharge: ${JSON.stringify(object)}`);
+const parseDischarge = (discharge: unknown): Discharge => {
+  if (!discharge || typeof discharge !== 'object' || !isDischarge(discharge)) {
+    throw new Error(`Incorrect or missing discharge: ${JSON.stringify(discharge)}`);
   }
 
-  return object;
+  return discharge;
 }
 
 const parseEmployerName = (employerName: unknown): string => {
@@ -120,18 +126,25 @@ const parseEmployerName = (employerName: unknown): string => {
   return employerName;
 };
 
-const isSickLeave = (sickLeave: any): sickLeave is SickLeave => {
- return sickLeave.startDate && isDate(sickLeave.startDate) && sickLeave.endDate && isDate(sickLeave.endDate)
+const isSickLeave = (sickLeave: object): sickLeave is SickLeave => {
+  return (
+    'startDate' in sickLeave &&
+    'endDate' in sickLeave &&
+    isString(sickLeave.startDate) &&
+    isDate(sickLeave.startDate) &&
+    isString(sickLeave.endDate) &&
+    isDate(sickLeave.endDate)
+  )
 }
 
-const parseSickLeave = (object: unknown): SickLeave | undefined => {
-  if (!object) {
+const parseSickLeave = (sickLeave: unknown): SickLeave | undefined => {
+  if (!sickLeave) {
     return undefined;
   }
-  if (!isSickLeave(object)) {
-    throw new Error(`Incorrect sick leave: ${JSON.stringify(object)}`);
+  if (typeof sickLeave !== 'object' || !isSickLeave(sickLeave)) {
+    throw new Error(`Incorrect sick leave: ${JSON.stringify(sickLeave)}`);
   }
-  return object;
+  return sickLeave;
 }
 
 const isHealthCheckRating = (healthCheckRating: number): healthCheckRating is HealthCheckRating => {
