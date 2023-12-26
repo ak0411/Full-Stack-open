@@ -3,7 +3,7 @@ import { ChangeEvent, useState } from "react";
 import { EntryFormValues } from "../../../types";
 
 interface Props {
-  addEntry: (newEntry: EntryFormValues) => void;
+  addEntry: (newEntry: EntryFormValues) => boolean;
   handleToggleForm: () => void;
 }
 
@@ -46,16 +46,17 @@ const HospitalEntryForm = ({ addEntry, handleToggleForm }: Props) => {
       }
     };
 
-    addEntry(newEntry);
-
-    setFormData({
-      description: '',
-      date: '',
-      specialist: '',
-      diagnosisCodes: '',
-      dischargeDate: '',
-      criteria: '',
-    });
+    const isSuccess = addEntry(newEntry);
+    if (isSuccess) {
+      setFormData({
+        description: '',
+        date: '',
+        specialist: '',
+        diagnosisCodes: '',
+        dischargeDate: '',
+        criteria: '',
+      });
+    }
   };
 
   return (

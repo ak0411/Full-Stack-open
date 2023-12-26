@@ -7,7 +7,7 @@ import FemaleIcon from '@mui/icons-material/Female';
 import EntryInfo from "./EntryInfo";
 import diagnosisService from "../../services/diagnoses";
 import HospitalEntryForm from "./Forms/HospitalEntryForm";
-import { Button, Container, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from "@mui/material";
+import { Alert, Button, Container, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from "@mui/material";
 
 
 const PatientInfoPage = () => {
@@ -16,6 +16,7 @@ const PatientInfoPage = () => {
   const [entries, setEntries] = useState<Entry[]>();
   const [diagnoses, setDiagnoses] = useState<Diagnosis[]>();
   const [selectedEntryType, setSelectedEntryType] = useState('hospital');
+  const [error, setError] = useState(null);
 
   const id = useParams().id;
 
@@ -55,10 +56,16 @@ const PatientInfoPage = () => {
       .createEntry(patient.id, newEntry)
       .then(returnedEntry => {
         setEntries(entries?.concat(returnedEntry));
+        return true;
       })
       .catch(error => {
-        console.log(error);
+        setError(error.response.data);
+        setTimeout(() => {
+          setError(null);
+        }, 3000);
       });
+
+    return false;
   };
 
   return (
@@ -75,6 +82,7 @@ const PatientInfoPage = () => {
       <div>gender: {patient.gender}</div>
       <div>ssn: {patient.ssn}</div>
       <div>occupation: {patient.occupation}</div>
+      {error && <Alert severity="error">{error}</Alert>}
       <div>
         {isFormVisible && (
           <Container sx={{ mt: 2, border: 'solid 1px grey', borderRadius: '5px', padding: 2 }}>

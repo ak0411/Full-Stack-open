@@ -101,13 +101,17 @@ const parseDiagnosisCodes = (object: unknown): Array<DiagnosisEntry['code']> => 
 };
 
 const isDischarge = (discharge: object): discharge is Discharge => {
-  return (
+  if (
     'date' in discharge &&
     'criteria' in discharge &&
     isString(discharge.date) &&
     isDate(discharge.date) &&
-    isString(discharge.criteria)
-  )
+    isString(discharge.criteria) &&
+    discharge.criteria
+  ) {
+    return true
+  }
+  return false
 }
 
 const parseDischarge = (discharge: unknown): Discharge => {
