@@ -1,119 +1,110 @@
-import { Button, FormControl, Typography, TextField } from "@mui/material";
 import { ChangeEvent, useState } from "react";
-import { EntryFormValues } from "../../../types";
+import {
+  Button,
+  FormControl,
+  Typography,
+  TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+  SelectChangeEvent
+} from "@mui/material";
+import { Diagnosis, EntryFormValues } from "../../../types";
 
 interface Props {
-  addEntry: (newEntry: EntryFormValues) => boolean;
+  addEntry: (newEntry: EntryFormValues) => void;
   handleToggleForm: () => void;
+  diagnoses: Diagnosis[];
 }
 
-const HospitalEntryForm = ({ addEntry, handleToggleForm }: Props) => {
-  const [formData, setFormData] = useState({
-    description: '',
-    date: '',
-    specialist: '',
-    diagnosisCodes: '',
-    dischargeDate: '',
-    criteria: '',
-  });
+interface HospitalFormData {
+  description: string;
+  date: string;
+  specialist: string;
+  diagnosisCodes: string[];
+  dischargeDate: string;
+  criteria: string;
+}
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+const initialFormData: HospitalFormData = {
+  description: '',
+  date: '',
+  specialist: '',
+  diagnosisCodes: [],
+  dischargeDate: '',
+  criteria: '',
+};
+
+const HospitalEntryForm = ({ addEntry, handleToggleForm, diagnoses }: Props) => {
+  const [formData, setFormData] = useState<HospitalFormData>(initialFormData);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
-    const {
-      description,
-      date,
-      specialist,
-      diagnosisCodes,
-      dischargeDate,
-      criteria
-    } = formData;
+  const handleDiagnosisChange = (e: SelectChangeEvent<string[]>) => {
+    setFormData({
+      ...formData,
+      diagnosisCodes: e.target.value as string[],
+    });
+  };
 
+  const handleSubmit = () => {
     const newEntry: EntryFormValues = {
       type: 'Hospital',
-      description,
-      date,
-      specialist,
-      diagnosisCodes: diagnosisCodes
-        ? diagnosisCodes.replace(/ /g,'').split(',')
-        : undefined,
+      ...formData,
       discharge: {
-        date: dischargeDate,
-        criteria
-      }
+        date: formData.dischargeDate,
+        criteria: formData.criteria,
+      },
     };
 
-    const isSuccess = addEntry(newEntry);
-    if (isSuccess) {
-      setFormData({
-        description: '',
-        date: '',
-        specialist: '',
-        diagnosisCodes: '',
-        dischargeDate: '',
-        criteria: '',
-      });
-    }
+    addEntry(newEntry);
+
+    setFormData(initialFormData);
   };
 
   return (
     <FormControl fullWidth>
-      <Typography variant="h5">Hospital Entry</Typography>
-      <TextField
-        name="description"
-        label="Description"
-        value={formData.description}
-        onChange={handleChange}
-        margin="normal"
-        size="small"
-      />
-      <TextField
-        name="date"
-        label="Date"
-        value={formData.date}
-        onChange={handleChange}
-        margin="normal"
-        size="small"
-      />
-      <TextField
-        name="specialist"
-        label="Specialist"
-        value={formData.specialist}
-        onChange={handleChange}
-        margin="normal"
-        size="small"
-      />
-      <TextField
-        name="diagnosisCodes"
-        label="Diagnosis Codes"
-        value={formData.diagnosisCodes}
-        onChange={handleChange}
-        margin="normal"
-        size="small"
-      />
-      <TextField
-        name="dischargeDate"
-        label="Discharge Date"
-        value={formData.dischargeDate}
-        onChange={handleChange}
-        margin="normal"
-        size="small"
-      />
-      <TextField
-        name="criteria"
-        label="Criteria"
-        value={formData.criteria}
-        onChange={handleChange}
-        margin="normal"
-        size="small"
-      />
-      <Button variant="contained" color="success" onClick={handleSubmit} sx={{ mb: 1, display: 'inline-block' }}>
-        Add
-      </Button>
-      <Button onClick={handleToggleForm} variant="contained" color="error" sx={{ display: 'inline-block' }}>Cancel</Button>
+      {["description", "date", "specialist", "dischargeDate", "criteria"].map((field) => (
+        <TextField
+          key={field}
+          name={field}
+          label={field}
+          value={formData[field as keyof HospitalFormData]}
+          onChange={handleChange}
+          margin="normal"
+          size="small"
+          type={field === "date" || field === "dischargeDate" ? "date" : "text"}
+          InputLabelProps={{ shrink: true }}
+        />
+      ))}
+      <FormControl fullWidth margin="normal" size="small">
+        <InputLabel id="diagnosis-codes-label">Diagnosis Codes</InputLabel>
+        <Select
+          label="Diagnosis Codes"
+          labelId="diagnosis-codes-label"
+          multiple
+          value={formData.diagnosisCodes}
+          onChange={handleDiagnosisChange}
+          size="small"
+        >
+          {diagnoses.map((d) => (
+            <MenuItem key={d.code} value={d.code}>
+              {d.code}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Button variant="contained" color="success" onClick={handleSubmit}>
+          Add
+        </Button>
+        <Button onClick={handleToggleForm} variant="contained" color="error">
+          Cancel
+        </Button>
+      </div>
     </FormControl>
   );
 };

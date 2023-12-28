@@ -7,7 +7,9 @@ import FemaleIcon from '@mui/icons-material/Female';
 import EntryInfo from "./EntryInfo";
 import diagnosisService from "../../services/diagnoses";
 import HospitalEntryForm from "./Forms/HospitalEntryForm";
-import { Alert, Button, Container, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from "@mui/material";
+import { Alert, Button, Container, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Typography } from "@mui/material";
+import HealthCheckEntryForm from "./Forms/HealthCheckEntryForm";
+import OccupationalHealthcareEntryForm from "./Forms/OccupationalHealthcareEntryForm";
 
 
 const PatientInfoPage = () => {
@@ -56,7 +58,6 @@ const PatientInfoPage = () => {
       .createEntry(patient.id, newEntry)
       .then(returnedEntry => {
         setEntries(entries?.concat(returnedEntry));
-        return true;
       })
       .catch(error => {
         setError(error.response.data);
@@ -64,13 +65,11 @@ const PatientInfoPage = () => {
           setError(null);
         }, 3000);
       });
-
-    return false;
   };
 
   return (
     <div>
-      <h2>
+      <Typography>
         {patient.name}
         {patient.gender === 'other'
           ? null
@@ -78,16 +77,16 @@ const PatientInfoPage = () => {
             ? <MaleIcon />
             : <FemaleIcon />
         }
-      </h2>
-      <div>gender: {patient.gender}</div>
-      <div>ssn: {patient.ssn}</div>
-      <div>occupation: {patient.occupation}</div>
+      </Typography>
+      <Typography>gender: {patient.gender}</Typography>
+      <Typography>ssn: {patient.ssn}</Typography>
+      <Typography>occupation: {patient.occupation}</Typography>
       {error && <Alert severity="error">{error}</Alert>}
       <div>
         {isFormVisible && (
           <Container sx={{ mt: 2, border: 'solid 1px grey', borderRadius: '5px', padding: 2 }}>
             <FormControl>
-              <FormLabel id="entry-types">Add Entry</FormLabel>
+              <FormLabel id="entry-types">Entry type</FormLabel>
               <RadioGroup
                 aria-labelledby="entry-types"
                 value={selectedEntryType}
@@ -99,13 +98,13 @@ const PatientInfoPage = () => {
                 <FormControlLabel value="health" control={<Radio />} label="Health" />
               </RadioGroup>
             </FormControl>
-            {selectedEntryType === 'hospital' && <HospitalEntryForm addEntry={addEntry} handleToggleForm={handleToggleForm} />}
-            {selectedEntryType === 'occupational' && <div>Occupational</div>}
-            {selectedEntryType === 'health' && <div>Health</div>}
+            {selectedEntryType === 'hospital' && <HospitalEntryForm addEntry={addEntry} handleToggleForm={handleToggleForm} diagnoses={diagnoses} />}
+            {selectedEntryType === 'occupational' && <OccupationalHealthcareEntryForm addEntry={addEntry} handleToggleForm={handleToggleForm} diagnoses={diagnoses} />}
+            {selectedEntryType === 'health' && <HealthCheckEntryForm addEntry={addEntry} handleToggleForm={handleToggleForm} diagnoses={diagnoses} />}
           </Container>
         )}
         {!isFormVisible && <Button onClick={handleToggleForm} variant="contained" sx={{ mt: 2 }}>New entry</Button>}
-        <h2>entries</h2>
+        <h2>Entries</h2>
         {!entries || entries.length === 0
           ? <div>none</div>
           : entries.map(entry =>

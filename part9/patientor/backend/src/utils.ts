@@ -142,12 +142,10 @@ const isSickLeave = (sickLeave: object): sickLeave is SickLeave => {
 }
 
 const parseSickLeave = (sickLeave: unknown): SickLeave | undefined => {
-  if (!sickLeave) {
+  if (!sickLeave || !isSickLeave(sickLeave)) {
     return undefined;
   }
-  if (typeof sickLeave !== 'object' || !isSickLeave(sickLeave)) {
-    throw new Error(`Incorrect sick leave: ${JSON.stringify(sickLeave)}`);
-  }
+
   return sickLeave;
 }
 
@@ -156,7 +154,7 @@ const isHealthCheckRating = (healthCheckRating: number): healthCheckRating is He
 };
 
 const parseHealthCheckRating = (healthCheckRating: unknown): HealthCheckRating => {
-  if (!healthCheckRating || isNaN(Number(healthCheckRating)) || !isHealthCheckRating(Number(healthCheckRating))) {
+  if (isNaN(Number(healthCheckRating)) || !isHealthCheckRating(Number(healthCheckRating))) {
     throw new Error('Incorrect or missing health check rating: ' + healthCheckRating);
   }
   return Number(healthCheckRating);
