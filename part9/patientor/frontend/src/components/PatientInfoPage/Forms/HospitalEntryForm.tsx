@@ -2,14 +2,12 @@ import { ChangeEvent, useState } from "react";
 import {
   Button,
   FormControl,
-  Typography,
   TextField,
   Select,
   MenuItem,
   InputLabel,
-  SelectChangeEvent
 } from "@mui/material";
-import { Diagnosis, EntryFormValues } from "../../../types";
+import { Diagnosis, EntryFormValues, HospitalEntry } from "../../../types";
 
 interface Props {
   addEntry: (newEntry: EntryFormValues) => void;
@@ -17,77 +15,54 @@ interface Props {
   diagnoses: Diagnosis[];
 }
 
-interface HospitalFormData {
-  description: string;
-  date: string;
-  specialist: string;
-  diagnosisCodes: string[];
-  dischargeDate: string;
-  criteria: string;
-}
-
-const initialFormData: HospitalFormData = {
+const initialFormData: EntryFormValues = {
+  type: 'Hospital',
   description: '',
   date: '',
   specialist: '',
   diagnosisCodes: [],
-  dischargeDate: '',
-  criteria: '',
+  discharge: {
+    date: '',
+    criteria: ''
+  }
 };
 
 const HospitalEntryForm = ({ addEntry, handleToggleForm, diagnoses }: Props) => {
-  const [formData, setFormData] = useState<HospitalFormData>(initialFormData);
+  const [formData, setFormData] = useState<EntryFormValues>(initialFormData);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDiagnosisChange = (e: SelectChangeEvent<string[]>) => {
-    setFormData({
-      ...formData,
-      diagnosisCodes: e.target.value as string[],
-    });
-  };
-
   const handleSubmit = () => {
-    const newEntry: EntryFormValues = {
-      type: 'Hospital',
-      ...formData,
-      discharge: {
-        date: formData.dischargeDate,
-        criteria: formData.criteria,
-      },
-    };
-
-    addEntry(newEntry);
-
+    addEntry(formData);
     setFormData(initialFormData);
   };
 
   return (
     <FormControl fullWidth>
-      {["description", "date", "specialist", "dischargeDate", "criteria"].map((field) => (
+      {["description", "date", "specialist"].map((field) => (
         <TextField
           key={field}
           name={field}
           label={field}
-          value={formData[field as keyof HospitalFormData]}
+          value={formData[field as keyof EntryFormValues]}
           onChange={handleChange}
           margin="normal"
           size="small"
-          type={field === "date" || field === "dischargeDate" ? "date" : "text"}
+          type={field === "date" ? "date" : "text"}
           InputLabelProps={{ shrink: true }}
         />
       ))}
       <FormControl fullWidth margin="normal" size="small">
-        <InputLabel id="diagnosis-codes-label">Diagnosis Codes</InputLabel>
+        <InputLabel id="diagnosis-codes-label">diagnosis codes</InputLabel>
         <Select
-          label="Diagnosis Codes"
+          label="diagnosis codes"
           labelId="diagnosis-codes-label"
           multiple
           value={formData.diagnosisCodes}
-          onChange={handleDiagnosisChange}
+          onChange={(e) => setFormData({...formData, diagnosisCodes: e.target.value as string[]})}
           size="small"
         >
           {diagnoses.map((d) => (
@@ -97,6 +72,36 @@ const HospitalEntryForm = ({ addEntry, handleToggleForm, diagnoses }: Props) => 
           ))}
         </Select>
       </FormControl>
+      <TextField
+        label="discharge date"
+        value={(formData as HospitalEntry).discharge.date}
+        onChange={(e) => setFormData({
+          ...formData as HospitalEntry,
+          discharge: {
+            date: e.target.value,
+            criteria: (formData as HospitalEntry).discharge.criteria
+          }
+        })}
+        margin="normal"
+        size="small"
+        type="date"
+        InputLabelProps={{ shrink: true }}
+      />
+      <TextField
+        label="criteria"
+        value={(formData as HospitalEntry).discharge.criteria}
+        onChange={(e) => setFormData({
+          ...formData as HospitalEntry,
+          discharge: {
+            date: (formData as HospitalEntry).discharge.date,
+            criteria: e.target.value
+          }
+        })}
+        margin="normal"
+        size="small"
+        type="text"
+        InputLabelProps={{ shrink: true }}
+      />
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <Button variant="contained" color="success" onClick={handleSubmit}>
           Add

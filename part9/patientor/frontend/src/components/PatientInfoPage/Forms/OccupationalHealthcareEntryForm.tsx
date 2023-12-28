@@ -38,12 +38,7 @@ const OccupationalHealthcareEntryForm = ({ addEntry, handleToggleForm, diagnoses
   };
 
   const handleSubmit = () => {
-    const newEntry: EntryFormValues = {
-      ...formData
-    };
-
-    addEntry(newEntry);
-
+    addEntry(formData);
     setFormData(initialFormData);
   };
 
@@ -53,10 +48,9 @@ const OccupationalHealthcareEntryForm = ({ addEntry, handleToggleForm, diagnoses
     return entry.type === "OccupationalHealthcare";
   };
 
-
   return (
     <FormControl fullWidth>
-      {["description", "date", "specialist", "employerName"].map((field) => (
+      {["description", "date", "specialist"].map((field) => (
         <TextField
           key={field}
           name={field}
@@ -69,6 +63,33 @@ const OccupationalHealthcareEntryForm = ({ addEntry, handleToggleForm, diagnoses
           InputLabelProps={{ shrink: true }}
         />
       ))}
+      <FormControl fullWidth margin="normal" size="small">
+        <InputLabel id="diagnosis-codes-label">diagnosis codes</InputLabel>
+        <Select
+          label="diagnosis codes"
+          labelId="diagnosis-codes-label"
+          multiple
+          value={formData.diagnosisCodes}
+          onChange={(e) => setFormData({...formData, diagnosisCodes: e.target.value as string[]})}
+          size="small"
+        >
+          {diagnoses.map((d) => (
+            <MenuItem key={d.code} value={d.code}>
+              {d.code}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <TextField
+        name="employerName"
+        label="employer name"
+        value={(formData as OccupationalHealthcareEntry).employerName}
+        onChange={handleChange}
+        margin="normal"
+        size="small"
+        type="text"
+        InputLabelProps={{ shrink: true }}
+      />
       <FormControl component="fieldset" margin="normal" size="small">
         <Typography>Sick leave</Typography>
         <TextField
@@ -115,23 +136,6 @@ const OccupationalHealthcareEntryForm = ({ addEntry, handleToggleForm, diagnoses
             });
           }}
         />
-      </FormControl>
-      <FormControl fullWidth margin="normal" size="small">
-        <InputLabel id="diagnosis-codes-label">diagnosis codes</InputLabel>
-        <Select
-          label="diagnosis codes"
-          labelId="diagnosis-codes-label"
-          multiple
-          value={formData.diagnosisCodes}
-          onChange={(e) => setFormData({...formData, diagnosisCodes: e.target.value as string[]})}
-          size="small"
-        >
-          {diagnoses.map((d) => (
-            <MenuItem key={d.code} value={d.code}>
-              {d.code}
-            </MenuItem>
-          ))}
-        </Select>
       </FormControl>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <Button variant="contained" color="success" onClick={handleSubmit}>

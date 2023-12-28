@@ -69,7 +69,7 @@ const PatientInfoPage = () => {
 
   return (
     <div>
-      <Typography>
+      <Typography variant="h5">
         {patient.name}
         {patient.gender === 'other'
           ? null
