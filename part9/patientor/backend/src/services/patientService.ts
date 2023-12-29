@@ -31,7 +31,7 @@ const addEntry = (id: string, entry: NewEntry): Entry => {
   const newEntry: Entry = {
     id: uuid(),
     ...entry
-  }
+  };
   const foundPatient = patientEntries.find(patient => patient.id === id);
 
   if (!foundPatient) {
@@ -40,6 +40,6 @@ const addEntry = (id: string, entry: NewEntry): Entry => {
 
   foundPatient.entries.push(newEntry);
   return newEntry;
-}
+};
 
 export default { getPatients, getPatientById, addPatient, addEntry };

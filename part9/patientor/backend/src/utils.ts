@@ -69,7 +69,7 @@ export const toNewPatientEntry = (object: unknown): NewPatientEntry => {
 
 const isEntryType = (type: string): type is EntryType => {
   return Object.values(EntryType).map(entry => entry.toString()).includes(type);
-}
+};
 
 const parseType = (type: unknown): EntryType => {
   if (!type || !isString(type) || !isEntryType(type)) {
@@ -109,10 +109,10 @@ const isDischarge = (discharge: object): discharge is Discharge => {
     isString(discharge.criteria) &&
     discharge.criteria
   ) {
-    return true
+    return true;
   }
-  return false
-}
+  return false;
+};
 
 const parseDischarge = (discharge: unknown): Discharge => {
   if (!discharge || typeof discharge !== 'object' || !isDischarge(discharge)) {
@@ -120,7 +120,7 @@ const parseDischarge = (discharge: unknown): Discharge => {
   }
 
   return discharge;
-}
+};
 
 const parseEmployerName = (employerName: unknown): string => {
   if (!employerName || !isString(employerName)) {
@@ -138,8 +138,8 @@ const isSickLeave = (sickLeave: object): sickLeave is SickLeave => {
     isDate(sickLeave.startDate) &&
     isString(sickLeave.endDate) &&
     isDate(sickLeave.endDate)
-  )
-}
+  );
+};
 
 const parseSickLeave = (sickLeave: unknown): SickLeave | undefined => {
   if (!sickLeave || !isSickLeave(sickLeave)) {
@@ -147,7 +147,7 @@ const parseSickLeave = (sickLeave: unknown): SickLeave | undefined => {
   }
 
   return sickLeave;
-}
+};
 
 const isHealthCheckRating = (healthCheckRating: number): healthCheckRating is HealthCheckRating => {
   return Object.values(HealthCheckRating).includes(healthCheckRating);
@@ -158,7 +158,7 @@ const parseHealthCheckRating = (healthCheckRating: unknown): HealthCheckRating =
     throw new Error('Incorrect or missing health check rating: ' + healthCheckRating);
   }
   return Number(healthCheckRating);
-}
+};
 
 export const toNewEntry = (object: unknown): NewEntry => {
   if (!object || typeof object !== 'object' ) {
@@ -175,7 +175,7 @@ export const toNewEntry = (object: unknown): NewEntry => {
     };
 
     switch (type) {
-      case 'Hospital':
+      case EntryType.Hospital:
         if ('discharge' in object) {
           return {
             ...entry,
@@ -184,7 +184,7 @@ export const toNewEntry = (object: unknown): NewEntry => {
           };
         }
         break;
-      case 'OccupationalHealthcare':
+      case EntryType.OccupationalHealthcare:
         if ('employerName' in object && 'sickLeave' in object) {
           return {
             ...entry,
@@ -194,13 +194,13 @@ export const toNewEntry = (object: unknown): NewEntry => {
           };
         }
         break;
-      case 'HealthCheck':
+      case EntryType.HealthCheck:
         if ('healthCheckRating' in object) {
           return {
             ...entry,
             type: 'HealthCheck',
             healthCheckRating: parseHealthCheckRating(object.healthCheckRating)
-          }
+          };
         }
         break;
       default:
@@ -209,4 +209,4 @@ export const toNewEntry = (object: unknown): NewEntry => {
   }
 
   throw new Error('Incorrect data: some fields are missing');
-}
+};

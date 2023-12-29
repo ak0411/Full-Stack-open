@@ -1,4 +1,3 @@
-import React, { ChangeEvent } from "react";
 import {
   FormControl,
   TextField,
@@ -6,42 +5,26 @@ import {
   MenuItem,
   InputLabel,
   Button,
-  SelectChangeEvent,
 } from "@mui/material";
 import { Diagnosis, EntryFormValues } from "../../../types";
 
 interface Props {
-  initialFormData: EntryFormValues;
   formData: EntryFormValues;
   setFormData: React.Dispatch<React.SetStateAction<EntryFormValues>>;
-  addEntry: (newEntry: EntryFormValues) => void;
-  additionalFields?: React.ReactNode;
   diagnoses: Diagnosis[];
-
+  handleSubmit: () => void;
+  handleToggleForm: () => void;
+  children: JSX.Element;
 }
 
 const BaseEntryForm = ({
-  initialFormData,
   formData,
   setFormData,
-  addEntry,
-  additionalFields,
-  diagnoses
+  diagnoses,
+  handleSubmit,
+  handleToggleForm,
+  children
 }: Props) => {
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSelectChange = (e: SelectChangeEvent<string[]>) => {
-    setFormData((prev) => ({ ...prev, diagnosisCodes: e.target.value as string[] }));
-  };
-
-  const handleSubmit = () => {
-    addEntry(formData);
-    setFormData(initialFormData);
-  };
 
   return (
     <FormControl fullWidth>
@@ -51,10 +34,11 @@ const BaseEntryForm = ({
           name={field}
           label={field}
           value={formData[field as keyof EntryFormValues]}
-          onChange={handleChange}
+          onChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
           margin="normal"
           size="small"
           type={field === "date" ? "date" : "text"}
+          InputLabelProps={{ shrink: true }}
         />
       ))}
       <FormControl fullWidth margin="normal" size="small">
@@ -64,7 +48,7 @@ const BaseEntryForm = ({
           labelId="diagnosis-codes-label"
           multiple
           value={formData.diagnosisCodes}
-          onChange={handleSelectChange}
+          onChange={(e) => setFormData({...formData, diagnosisCodes: e.target.value as string[]})}
           size="small"
         >
           {diagnoses.map((d) => (
@@ -75,13 +59,13 @@ const BaseEntryForm = ({
         </Select>
       </FormControl>
 
-      {additionalFields}
+      {children}
 
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <Button variant="contained" color="success" onClick={handleSubmit}>
           Add
         </Button>
-        <Button variant="contained" color="error">
+        <Button onClick={handleToggleForm} variant="contained" color="error">
           Cancel
         </Button>
       </div>
